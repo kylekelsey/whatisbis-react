@@ -1,0 +1,1 @@
+export const TBC_BASE_URL = "https://www.tbc.wowhead.com/";

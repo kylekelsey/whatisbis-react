@@ -1,16 +1,26 @@
-import React from 'react';
-import Item from './components/Item/Item'
-import Header from './components/Header/Header';
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from "react";
+import Header from "./components/Header/Header";
+import Home from "./components/Home/Home";
+import Class from "./components/Class/Class";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "react-bootstrap-submenu/dist/index.css";
+import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 
-const App = () => {
-  return (
-    <div className="App">
-      <Header />
-      <Item />
-    </div>
-  );
-};
+class App extends React.Component {
+  render() {
+    return (
+      <Router>
+          <div className="App">
+            <Header />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/class" element={<Class />} />
+            </Routes>
+          </div>
+      </Router>
+    );
+  }
+}
 
 export default App;
