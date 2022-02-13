@@ -13,7 +13,7 @@ function Navtabs(props) {
   useEffect(() => {
     // Update the document title using the browser API
     setKey(searchParams.get("spec"));
-  });
+  }, [searchParams]);
 
   function changeSpec(key) {
     setKey(key);

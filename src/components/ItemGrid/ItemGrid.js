@@ -25,6 +25,7 @@ class ItemGrid extends React.Component {
     axios
       .get(`/api/items/${className}/${spec}`)
       .then((res) => {
+        console.log(res.data);
         if (res.data) {
           this.setState({
             items: res.data,
@@ -34,18 +35,18 @@ class ItemGrid extends React.Component {
       .catch((err) => console.log(err));
   }
   render() {
-    // return this.state.items.length > 0
-    //   ? this.state.items.map((item) => {
-    //       return <Item item={item} key={item.wowheadId} />;
-    //     })
-    //   : null;
     return (
       this.state.items.length > 0 && (
         <Container>
           {Array.from({ length: 2 }).map((_, idx) => {
-            if (idx % 2 == 0 || idx == 0) {
+            if (idx % 2 === 0 || idx === 0) {
               return (
-                <Row xs={1} md={3} className="g-4" key={this.state.items[idx].name + "-row"}>
+                <Row
+                  xs={1}
+                  md={3}
+                  className="g-4"
+                  key={this.state.items[idx].name + "-row"}
+                >
                   <Col key={this.state.items[idx].name + "-col"}>
                     <Card key={this.state.items[idx].name}>
                       <Item

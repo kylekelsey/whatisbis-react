@@ -64,6 +64,7 @@ class Header extends React.Component {
                     );
                   })}
                 </NavDropdownMenu>
+                <Nav.Link href="admin">Admin</Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Container>
