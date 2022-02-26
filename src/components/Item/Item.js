@@ -21,9 +21,9 @@ class Item extends React.Component {
     let modifierString = "";
     let isEnchant = false;
     let isGems = false;
-    if (item.enchantment) {
+    if (item.enchant) {
       isEnchant = true;
-      modifierString += `ench=${item.enchantment}`;
+      modifierString += `ench=${item.enchant.enchantSpell}`;
     }
     if (item.gems) {
       isGems = true;
@@ -56,11 +56,8 @@ class Item extends React.Component {
           {/* <Card bg="dark"> */}
           <Row>
             <Col>
-              {this.state.item.enchantment ? (
-                <Enchant
-                  icon={this.state.item.enchantIcon}
-                  enchant={this.state.item.enchantment}
-                />
+              {this.state.item.enchant ? (
+                <Enchant enchant={this.state.item.enchant} />
               ) : null}
             </Col>
             <Col>

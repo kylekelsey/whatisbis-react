@@ -9,16 +9,24 @@ class Admin extends React.Component {
     this.state = {
       name: "",
       wowheadId: "",
-      enchantment: "",
       setPieces: [],
       class: "",
       spec: "",
       icon: "",
       rarity: "",
-      gems: [],
-      enchantIcon: { name: "", binary: "", wowheadId: "" },
-      temp: "",
+      setPieceTemp: "",
+      gemNameTemp: "",
+      gemIconTemp: "",
+      gemWowheadIdTemp: "",
+      isEnchanted: false,
+      isGemmed: false,
+      classes: [],
+      specs: [],
     };
+  }
+
+  componentDidMount() {
+    this.getClasses();
   }
   saveItem = (item) => {
     axios
@@ -31,47 +39,144 @@ class Admin extends React.Component {
       .catch((err) => console.log(err));
   };
 
+  getClasses = () => {
+    axios
+      .get("/api/classes")
+      .then((res) => {
+        if (res.data) {
+          console.log(res.data);
+          this.setState({
+            classes: res.data,
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  getSpecs = (event) => {
+    this.state.classes.forEach((className) => {
+      if (className.name === event.target.value) {
+        this.setState({ specs: className.specs });
+      }
+    });
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
     console.log(this.state);
     this.saveItem(this.state);
   };
 
-  handleChange = (event) => {
+  handleItemChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
+  };
+
+  setTemporarySetPieces = (event) => {
+    this.setState({ setPieceTemp: event.target.value });
   };
 
   handleSetPieceChange = () => {
     this.setState({
-      setPieces: [...this.state.setPieces, this.state.temp],
-      temp: "",
+      setPieces: [...this.state.setPieces, this.state.setPieceTemp],
+      setPieceTemp: "",
     });
   };
 
-  setSetPieces = (event) => {
-    this.setState({ temp: event.target.value });
+  getBase64 = (file) => {
+    return new Promise((resolve) => {
+      let baseURL = "";
+      // Make new FileReader
+      let reader = new FileReader();
+      // Convert the file to base64 text
+      reader.readAsDataURL(file);
+      // on reader load somthing...
+      reader.onload = () => {
+        // Make a fileInfo Object
+        baseURL = reader.result;
+        resolve(baseURL);
+      };
+    });
   };
 
-  handleIconChange = (event) => {
-    this.setState({ icon: Buffer.from(event.target.value, "base64") });
+  handleFileInputChange = (e) => {
+    console.log(e);
+    this.getBase64(e.target.files[0])
+      .then((result) => {
+        this.setState({
+          icon: result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  handleEnchantIconChange = (event) => {
+  handleEnchantChange = (event) => {
     if (event.target.name === "binary") {
       this.setState({
-        enchantIcon: {
-          ...this.state.enchantIcon,
+        enchant: {
+          ...this.state.enchant,
           binary: Buffer.from(event.target.value, "base64"),
         },
       });
     } else {
       this.setState({
-        enchantIcon: {
-          ...this.state.enchantIcon,
+        enchant: {
+          ...this.state.enchant,
           [event.target.name]: event.target.value,
         },
       });
     }
+  };
+
+  handleGemNameChange = (event) => {
+    this.setState({ gemNameTemp: event.target.value });
+  };
+  handleGemIconChange = (event) => {
+    this.setState({ gemIconTemp: Buffer.from(event.target.value, "base64") });
+  };
+  handleGemWowheadIdChange = (event) => {
+    this.setState({ gemWowheadIdTemp: event.target.value });
+  };
+
+  handleAddGem = () => {
+    this.setState({
+      gems: [
+        ...this.state.gems,
+        {
+          name: this.state.gemNameTemp,
+          icon: this.state.gemIconTemp,
+          wowheadId: this.state.gemWowheadIdTemp,
+        },
+      ],
+      gemNameTemp: "",
+      gemIconTemp: "",
+      gemWowheadIdTemp: "",
+    });
+  };
+
+  setIsGemmed = (event) => {
+    if (event.target.checked) {
+      this.setState({ isGemmed: event.target.checked, gems: [] });
+    } else {
+      this.setState({ isGemmed: event.target.checked, gems: undefined });
+    }
+  };
+
+  setIsEnchanted = (event) => {
+    if (event.target.checked) {
+      this.setState({ isEnchanted: event.target.checked, enchant: {} });
+    } else {
+      this.setState({ isEnchanted: event.target.checked, enchant: undefined });
+    }
+  };
+
+  handleClassChange = (event) => {
+    this.setState({ class: event.target.value });
+  };
+
+  handleSpecChange = (event) => {
+    this.setState({ spec: event.target.value });
   };
 
   render() {
@@ -80,84 +185,146 @@ class Admin extends React.Component {
         <br />
         <Container>
           <Row>
-            <Col xl={3}>
+            <Col xl={4}>
               <Form onSubmit={this.handleSubmit}>
                 <Form.Group className="mb-3" controlId="form">
+                  <input
+                    onChange={this.setIsEnchanted}
+                    checked={this.state.isEnchanted}
+                    type="checkbox"
+                  />
+                  <label>Enchanted?</label>
+                  <br />
+                  <input
+                    onChange={this.setIsGemmed}
+                    checked={this.state.isGemmed}
+                    type="checkbox"
+                  />
+                  <label>Gems?</label>
+                  <br />
                   <Form.Label>Name</Form.Label>
                   <Form.Control
                     type="text"
-                    onChange={this.handleChange}
+                    onChange={this.handleItemChange}
                     name="name"
                   />
                   <Form.Label>wowheadId</Form.Label>
                   <Form.Control
                     type="text"
-                    onChange={this.handleChange}
+                    onChange={this.handleItemChange}
                     name="wowheadId"
                   />
-                  <Form.Label>enchantment</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleChange}
-                    name="enchantment"
-                  />
                   <Form.Label>setPieces</Form.Label>
+                  <br />
                   <textarea
                     readOnly
                     value={this.state.setPieces.join(",")}
                   ></textarea>
+                  <br />
                   <Form.Control
                     type="text"
                     name="setPieces"
-                    onChange={this.setSetPieces}
+                    onChange={this.setTemporarySetPieces}
                   />
+                  <br />
                   <Button onClick={this.handleSetPieceChange}>Add</Button>
                   <br />
                   <Form.Label>class</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleChange}
+                  <Form.Select
+                    type="select"
+                    onChange={(e) => {
+                      this.getSpecs(e);
+                      this.handleClassChange(e);
+                    }}
                     name="class"
-                  />
+                  >
+                    {this.state.classes.map((className) => {
+                      return (
+                        <option key={className.name}>{className.name}</option>
+                      );
+                    })}
+                  </Form.Select>
                   <Form.Label>spec</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleChange}
+                  <Form.Select
+                    type="select"
+                    onChange={this.handleSpecChange}
                     name="spec"
-                  />
+                  >
+                    {this.state.specs.map((spec) => {
+                      return <option key={spec}>{spec}</option>;
+                    })}
+                  </Form.Select>
                   <Form.Label>icon</Form.Label>
                   <Form.Control
-                    type="text"
-                    onChange={this.handleIconChange}
+                    type="file"
+                    onChange={this.handleFileInputChange}
                     name="icon"
                   />
                   <Form.Label>rarity</Form.Label>
                   <Form.Select
                     type="select"
-                    onChange={this.handleChange}
+                    onChange={this.handleItemChange}
                     name="rarity"
                   >
-                    <option>q3</option>
                     <option>q4</option>
+                    <option>q3</option>
                   </Form.Select>
-                  <Form.Label> enchantIcon name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleEnchantIconChange}
-                    name="name"
-                  />
-                  <Form.Label> enchantIcon icon</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleEnchantIconChange}
-                    name="binary"
-                  />
-                  <Form.Label> enchantIcon wowheadId</Form.Label>
-                  <Form.Control
-                    type="text"
-                    onChange={this.handleEnchantIconChange}
-                    name="wowheadId"
-                  />
+                  {this.state.isEnchanted ? (
+                    <React.Fragment>
+                      <Form.Label> enchant name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleEnchantChange}
+                        name="name"
+                      />
+                      <Form.Label> enchant icon</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleEnchantChange}
+                        name="icon"
+                      />
+                      <Form.Label> enchant wowheadId</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleEnchantChange}
+                        name="wowheadId"
+                      />
+
+                      <Form.Label> enchant spell</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleEnchantChange}
+                        name="enchantSpell"
+                      />
+                    </React.Fragment>
+                  ) : null}
+                  {this.state.isGemmed ? (
+                    <React.Fragment>
+                      <Form.Label> gem name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleGemNameChange}
+                        name="name"
+                      />
+                      <Form.Label> gem icon</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleGemIconChange}
+                        name="icon"
+                      />
+                      <Form.Label> gem wowheadId</Form.Label>
+                      <Form.Control
+                        type="text"
+                        onChange={this.handleGemWowheadIdChange}
+                        name="wowheadId"
+                      />
+                      <textarea
+                        readOnly
+                        value={JSON.stringify(this.state.gems)}
+                      ></textarea>
+                      <Button onClick={this.handleAddGem}>Add</Button>
+                    </React.Fragment>
+                  ) : null}
                   <Button variant="primary" type="submit">
                     Submit
                   </Button>

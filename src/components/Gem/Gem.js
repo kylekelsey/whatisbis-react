@@ -6,11 +6,9 @@ class Gem extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      icon: Buffer.from(props.gem.binary.data, "base64"),
+      icon: Buffer.from(props.gem.icon.data, "base64"),
       gemId: props.gem.wowheadId,
     };
-    console.log(props);
-    // console.log(this.state);
   }
 
   render() {
